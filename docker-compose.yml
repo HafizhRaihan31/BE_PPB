@@ -3,41 +3,48 @@ version: '3.8'
 services:
   web:
     build:
-      context: .
-      dockerfile: api/Dockerfile
+      context: ./API
+      dockerfile: Dockerfile
+    container_name: warungajib_api
     ports:
       - "8080:80"
     environment:
-      - DB_HOST=db
-      - DB_USER=root
-      - DB_PASS=root
-      - DB_NAME=warungajib1
+      DB_HOST: db
+      DB_USER: root
+      DB_PASS: root
+      DB_NAME: warungajib1
     depends_on:
       - db
+    volumes:
+      - ./API:/var/www/html
     networks:
       - app-network
 
   db:
-    image: mysql:8.0
+    image: mysql:5.7
     container_name: warungajib_db
+    restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=root
-      - MYSQL_DATABASE=warungajib1
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: warungajib1
     volumes:
       - ./warungajib1.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
     networks:
       - app-network
 
   pma:
     image: phpmyadmin/phpmyadmin
     container_name: warungajib_pma
+    restart: always
     ports:
       - "8081:80"
     environment:
-      - PMA_HOST=db
-      - PMA_USER=root
-      - PMA_PASSWORD=root
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root
     depends_on:
       - db
     networks:
@@ -45,7 +52,6 @@ services:
 
 volumes:
   db_data:
-
 
 networks:
   app-network:
